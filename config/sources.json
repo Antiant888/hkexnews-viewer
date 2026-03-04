@@ -1,0 +1,17 @@
+[
+  {
+    "name": "MainBoard",
+    "baseUrl": "https://www1.hkexnews.hk/ncms/json/eds/lcisehk7relsdc",
+    "dynamic": true
+  },
+  {
+    "name": "GEMBoard",
+    "baseUrl": "https://www1.hkexnews.hk/ncms/json/eds/lcigem7relsdc",
+    "dynamic": true
+  },
+  {
+    "name": "OthersMain",
+    "baseUrl": "https://www1.hkexnews.hk/ncms/json/eds/othsehk7relsdc",
+    "dynamic": true
+  }
+]

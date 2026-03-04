@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>HKEX News Viewer</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>HKEX News Viewer</h1>
+        <div class="controls">
+          <input id="search" placeholder="Search news..." />
+          <label for="summaryLength" class="sr">Summary</label>
+          <select id="summaryLength" title="Summary length">
+            <option value="short">Short (80)</option>
+            <option value="medium" selected>Medium (200)</option>
+            <option value="full">Full</option>
+          </select>
+          <button id="refresh">Fetch latest</button>
+        </div>
+      </header>
+
+      <section class="presets">
+        <h3>Presets & Filters</h3>
+        <div id="presetsList"></div>
+        <div class="filter-group">
+          <label for="stockCodeFilter">Filter by Stock Code:</label>
+          <select id="stockCodeFilter" title="Filter by stock code">
+            <option value="">All stocks</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="list">
+        <h3>News</h3>
+        <div id="newsList">Loading...</div>
+      </section>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

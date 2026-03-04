@@ -1,0 +1,24 @@
+body { font-family: system-ui, Arial, sans-serif; margin: 0; padding: 0; background: #f7f7f7; }
+.container { max-width: 900px; margin: 24px auto; padding: 16px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+header h1 { margin:0; font-size:1.2rem; }
+.controls { display:flex; gap:8px; align-items:center; }
+input#search { padding:6px 8px; min-width:220px; }
+select { padding:6px 8px; }
+button { padding:6px 8px; cursor:pointer; }
+.presets { margin-top:12px; }
+#presetsList button { margin-right:8px; margin-bottom:8px; }
+.filter-group { margin-top:12px; display:flex; gap:8px; align-items:center; }
+.item { border-bottom:1px solid #eee; padding:12px 0; }
+.item-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.item .title { margin:0; flex:1; }
+.release-date { font-size:0.85rem; color:#888; white-space:nowrap; }
+.item.compact .meta { font-size:0.9rem; color:#666; display:flex; gap:8px; align-items:center; margin-bottom:6px; }
+.item.compact .meta .code { font-weight:600; color:#333; margin-right:6px; }
+.item.compact .meta .name { color:#444; }
+.item .summary { margin:8px 0 0 0; color:#333; }
+.item .full-content { margin:8px 0 0 0; color:#222; }
+.toggle-full { display:inline-block; margin-top:8px; color:#0077cc; cursor:pointer; text-decoration:underline; }
+.item.expanded .summary { display:none; }
+.item.expanded .full-content { display:block; }
+.sr { position:absolute; left:-9999px; }

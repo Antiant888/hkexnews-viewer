@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Listings",
+    "keywords": ["listing", "issue", "listed"]
+  },
+  {
+    "name": "Financial Results",
+    "keywords": ["profit", "loss", "results", "interim", "annual"]
+  }
+]
