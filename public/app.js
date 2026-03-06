@@ -381,6 +381,9 @@ async function init() {
       await fetch('/api/fetch', { method: 'POST' });
       const newItems = await fetchNews();
       
+      // Reset to first page to show latest items
+      currentPage = 1;
+      
       // Repopulate stock codes in case there are new ones
       const newCodes = extractStockCodes(newItems);
       const currentCodes = Array.from(stockCodeSelect.options).map(o => o.value).slice(1);
