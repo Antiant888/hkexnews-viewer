@@ -49,8 +49,15 @@ function truncate(s, len) {
   return s.slice(0, len).trim() + '…';
 }
 
+// Pagination state
+let currentPage = 1;
+const itemsPerPage = 20;
+let currentList = [];
+let currentFilterStockCode = '';
+
 function renderNews(list, filterStockCode) {
   const el = document.getElementById('newsList');
+  const paginationEl = document.getElementById('pagination');
   
   // Apply stock code filter
   let filtered = list;
@@ -65,8 +72,12 @@ function renderNews(list, filterStockCode) {
     });
   }
   
+  currentList = filtered;
+  currentFilterStockCode = filterStockCode;
+  
   if (!filtered || !filtered.length) {
     el.innerHTML = '<p>No news found.</p>';
+    if (paginationEl) paginationEl.innerHTML = '';
     return;
   }
 
@@ -75,7 +86,16 @@ function renderNews(list, filterStockCode) {
   const selVal = (sel && sel.value) || 'medium';
   const maxLen = lenMap[selVal] || 200;
 
-  el.innerHTML = filtered
+  // Calculate pagination
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  if (currentPage > totalPages) currentPage = 1;
+  
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedItems = filtered.slice(startIndex, endIndex);
+
+  // Render items
+  el.innerHTML = paginatedItems
     .map(n => {
       let code = '';
       let name = '';
@@ -104,7 +124,91 @@ function renderNews(list, filterStockCode) {
       </article>`;
     })
     .join('\n');
+
+  // Render pagination
+  renderPagination(totalPages, paginationEl);
 }
+
+function renderPagination(totalPages, paginationEl) {
+  if (!paginationEl) return;
+
+  let paginationHTML = '';
+  
+  if (totalPages <= 1) {
+    paginationHTML = '<div class="pagination-info">Showing all ${currentList.length} items</div>';
+  } else {
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, currentList.length);
+    
+    paginationHTML = `
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Showing ${startItem}-${endItem} of ${currentList.length} items
+        </div>
+        <div class="pagination-controls">
+          <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="changePage(${Math.max(1, currentPage - 1)})" ${currentPage === 1 ? 'disabled' : ''}>
+            ← Previous
+          </button>
+          
+          ${renderPageNumbers(currentPage, totalPages)}
+          
+          <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="changePage(${Math.min(totalPages, currentPage + 1)})" ${currentPage === totalPages ? 'disabled' : ''}>
+            Next →
+          </button>
+        </div>
+      </div>
+    `;
+  }
+  
+  paginationEl.innerHTML = paginationHTML;
+}
+
+function renderPageNumbers(currentPage, totalPages) {
+  let pageNumbers = '';
+  
+  // Always show first page
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+    }
+  } else {
+    // Show first page
+    pageNumbers += `<button class="pagination-btn ${1 === currentPage ? 'active' : ''}" onclick="changePage(1)">1</button>`;
+    
+    // Show ellipsis if needed
+    if (currentPage > 4) {
+      pageNumbers += `<span class="pagination-ellipsis">...</span>`;
+    }
+    
+    // Show pages around current page
+    const start = Math.max(2, currentPage - 2);
+    const end = Math.min(totalPages - 1, currentPage + 2);
+    
+    for (let i = start; i <= end; i++) {
+      if (i > 1 && i < totalPages) {
+        pageNumbers += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+      }
+    }
+    
+    // Show ellipsis if needed
+    if (currentPage < totalPages - 3) {
+      pageNumbers += `<span class="pagination-ellipsis">...</span>`;
+    }
+    
+    // Show last page
+    if (totalPages > 1) {
+      pageNumbers += `<button class="pagination-btn ${totalPages === currentPage ? 'active' : ''}" onclick="changePage(${totalPages})">${totalPages}</button>`;
+    }
+  }
+  
+  return pageNumbers;
+}
+
+// Global function for pagination
+window.changePage = function(page) {
+  currentPage = page;
+  renderNews(currentList, currentFilterStockCode);
+};
 
 // handle read more toggles via delegation
 document.addEventListener('click', (e) => {
