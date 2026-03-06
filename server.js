@@ -9,6 +9,15 @@ app.use(require('cors')());
 
 const PORT = process.env.PORT || 3000;
 
+// Start the news scheduler
+if (process.env.NODE_ENV !== 'test') {
+  try {
+    require('./scripts/scheduler');
+  } catch (error) {
+    console.warn('⚠️  Scheduler not available:', error.message);
+  }
+}
+
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/config', express.static(path.join(__dirname, 'config')));
 
