@@ -129,6 +129,64 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Theme switching functionality
+function initThemeSwitcher() {
+  const themeToggle = document.getElementById('themeToggle');
+  const body = document.body;
+  
+  // Load saved theme preference
+  const savedTheme = localStorage.getItem('hkex-theme') || 'default';
+  body.setAttribute('data-theme', savedTheme);
+  updateThemeButton(savedTheme);
+  
+  // Theme toggle event listener
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = body.getAttribute('data-theme') || 'default';
+    let newTheme;
+    
+    if (currentTheme === 'default') {
+      newTheme = 'dark';
+    } else if (currentTheme === 'dark') {
+      newTheme = 'vibrant';
+    } else {
+      newTheme = 'default';
+    }
+    
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('hkex-theme', newTheme);
+    updateThemeButton(newTheme);
+    
+    // Animate theme change
+    document.querySelectorAll('.item').forEach(item => {
+      item.style.animation = 'none';
+      item.offsetHeight; // Trigger reflow
+      item.style.animation = 'themeSwitch 0.5s ease';
+    });
+  });
+}
+
+function updateThemeButton(theme) {
+  const themeToggle = document.getElementById('themeToggle');
+  if (theme === 'dark') {
+    themeToggle.textContent = '🌙 Dark';
+    themeToggle.style.background = '#1e1e1e';
+    themeToggle.style.color = '#ffffff';
+    themeToggle.style.borderColor = '#333333';
+  } else if (theme === 'vibrant') {
+    themeToggle.textContent = '🎨 Vibrant';
+    themeToggle.style.background = '#ffffff';
+    themeToggle.style.color = '#f59e0b';
+    themeToggle.style.borderColor = '#e2e8f0';
+    themeToggle.style.boxShadow = '0 10px 15px -3px rgba(245, 158, 11, 0.3)';
+  } else {
+    themeToggle.textContent = '🌓 Light';
+    themeToggle.style.background = '#ffffff';
+    themeToggle.style.color = '#212529';
+    themeToggle.style.borderColor = '#e5e6eb';
+    themeToggle.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+  }
+}
+
 // Add datetime functionality
 function updateDateTime() {
   const now = new Date();
