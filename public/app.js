@@ -218,6 +218,9 @@ setInterval(updateDateTime, 1000);
 updateDateTime();
 
 async function init() {
+  // Initialize theme switching first
+  initThemeSwitcher();
+  
   const items = await fetchNews();
   
   // Populate stock code filter
