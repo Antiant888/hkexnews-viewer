@@ -2,6 +2,45 @@ body { font-family: system-ui, Arial, sans-serif; margin: 0; padding: 0; backgro
 .container { max-width: 900px; margin: 24px auto; padding: 16px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 header h1 { margin:0; font-size:1.2rem; }
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  width: 100%;
+}
+
+.datetime-display {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+}
+
+.date {
+  font-size: 11px;
+  opacity: 0.9;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.time {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
 .controls { display:flex; gap:8px; align-items:center; }
 input#search { padding:6px 8px; min-width:220px; }
 select { padding:6px 8px; }

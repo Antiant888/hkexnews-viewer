@@ -129,6 +129,36 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Add datetime functionality
+function updateDateTime() {
+  const now = new Date();
+  const options = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  };
+  
+  const dateElement = document.getElementById('currentDate');
+  const timeElement = document.getElementById('currentTime');
+  
+  if (dateElement && timeElement) {
+    dateElement.textContent = now.toLocaleDateString('en-HK', options);
+    timeElement.textContent = now.toLocaleTimeString('en-HK', { 
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
+}
+
+// Update time every second
+setInterval(updateDateTime, 1000);
+
+// Initial update
+updateDateTime();
+
 async function init() {
   const items = await fetchNews();
   
