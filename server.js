@@ -9,6 +9,9 @@ app.use(require('cors')());
 
 const PORT = process.env.PORT || 3000;
 
+// Track last auto fetch time
+let lastAutoFetchTime = null;
+
 // Start the news scheduler
 if (process.env.NODE_ENV !== 'test') {
   try {
@@ -90,6 +93,43 @@ app.post('/api/fetch', async (req, res) => {
     res.json({ results });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// API endpoint to get last auto fetch time
+app.get('/api/last-fetch-time', (req, res) => {
+  try {
+    res.json({
+      lastAutoFetchTime: lastAutoFetchTime,
+      lastAutoFetchTimeFormatted: lastAutoFetchTime ? lastAutoFetchTime.toLocaleString('en-HK', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }) : null
+    });
+  } catch (error) {
+    console.error('Error getting last fetch time:', error);
+    res.status(500).json({ error: 'Failed to get last fetch time' });
+  }
+});
+
+// API endpoint to update last auto fetch time
+app.post('/api/update-last-fetch', (req, res) => {
+  try {
+    const { timestamp } = req.body;
+    if (timestamp) {
+      lastAutoFetchTime = new Date(timestamp);
+      console.log('📅 Last auto fetch time updated:', lastAutoFetchTime.toLocaleString('en-HK'));
+    }
+    res.json({ success: true, lastAutoFetchTime: lastAutoFetchTime });
+  } catch (error) {
+    console.error('Error updating last fetch time:', error);
+    res.status(500).json({ error: 'Failed to update last fetch time' });
   }
 });
 

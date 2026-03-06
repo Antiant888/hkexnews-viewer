@@ -123,6 +123,17 @@ header h1 {
   transition: all 0.3s ease;
 }
 
+.last-fetch-time {
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  border-top: 1px solid rgba(255,255,255,0.3);
+  padding-top: 4px;
+  margin-top: 4px;
+}
+
 .datetime-display:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 20px rgba(0,0,0,0.3);

@@ -19,6 +19,19 @@ cron.schedule('0 */4 * * *', async () => {
       const result = await response.json();
       console.log('✅ Scheduled fetch completed successfully');
       console.log('📊 Fetch results:', JSON.stringify(result.results, null, 2));
+      
+      // Update last auto fetch time
+      try {
+        await fetch('http://localhost:3000/api/update-last-fetch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ timestamp: new Date().toISOString() })
+        });
+      } catch (updateError) {
+        console.warn('⚠️  Failed to update last fetch time:', updateError.message);
+      }
     } else {
       console.error('❌ Scheduled fetch failed with status:', response.status);
     }

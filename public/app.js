@@ -315,11 +315,38 @@ function updateDateTime() {
   }
 }
 
+// Update last auto fetch time
+async function updateLastFetchTime() {
+  try {
+    const response = await fetch('/api/last-fetch-time');
+    if (response.ok) {
+      const data = await response.json();
+      const lastFetchElement = document.getElementById('lastFetchTime');
+      
+      if (lastFetchElement) {
+        if (data.lastAutoFetchTimeFormatted) {
+          lastFetchElement.textContent = `Last auto fetch: ${data.lastAutoFetchTimeFormatted}`;
+          lastFetchElement.style.display = 'block';
+        } else {
+          lastFetchElement.textContent = 'Last auto fetch: Never';
+          lastFetchElement.style.display = 'block';
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching last fetch time:', error);
+  }
+}
+
 // Update time every second
 setInterval(updateDateTime, 1000);
 
-// Initial update
+// Update last fetch time every 5 minutes
+setInterval(updateLastFetchTime, 300000);
+
+// Initial updates
 updateDateTime();
+updateLastFetchTime();
 
 async function init() {
   // Initialize theme switching first
