@@ -70,6 +70,16 @@ npm run fetch
 
 Or use the "Fetch latest" button in the web interface.
 
+### Automatic News Fetching
+
+The application includes an automatic scheduler that fetches new news:
+
+- **Every 4 hours**: Regular news updates
+- **Daily at 2 AM**: Full refresh of all news sources
+- **Timezone**: Asia/Hong_Kong
+
+The scheduler runs automatically in production and logs its activities.
+
 ## Deployment
 
 This application is configured for deployment on Railway with GitHub integration.
