@@ -1,10 +1,14 @@
 [
   {
-    "name": "Listings",
-    "keywords": ["listing", "issue", "listed"]
+    "name": "分拆",
+    "keywords": ["spin-off", "spinoff", "分拆", "分拆上市", "拆分", "拆股", "分拆业务", "spin off"]
   },
   {
-    "name": "Financial Results",
-    "keywords": ["profit", "loss", "results", "interim", "annual"]
+    "name": "供股",
+    "keywords": ["rights issue", "rights offering", "供股", "配股", "配售", "增发", "capital increase", "share issue"]
+  },
+  {
+    "name": "上市文件",
+    "keywords": ["上市文件", "listing document", "prospectus", "招股说明书", "上市申请", "listing application", "IPO", "initial public offering"]
   }
 ]
