@@ -46,8 +46,8 @@ cron.schedule('0 */4 * * *', async () => {
   timezone: "Asia/Hong_Kong"
 });
 
-// Also schedule a daily full refresh at 2 AM Hong Kong time
-cron.schedule('0 2 * * *', async () => {
+// Also schedule a daily full refresh at 1 PM Hong Kong time
+cron.schedule('0 13 * * *', async () => {
   console.log('🔄 Starting daily full refresh at', new Date().toISOString());
   
   try {
@@ -117,7 +117,7 @@ cron.schedule('*/5 * * * *', async () => {
 console.log('⏰ News scheduler started');
 console.log('📅 Schedule:');
 console.log('   - Every 4 hours: Regular news fetch');
-console.log('   - Daily at 2 AM: Full refresh');
+console.log('   - Daily at 1 PM: Full refresh');
 console.log('   - Every 5 minutes: Test last fetch time update');
 console.log('   - Timezone: Asia/Hong_Kong');
 
