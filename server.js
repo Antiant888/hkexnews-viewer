@@ -27,12 +27,50 @@ if (process.env.NODE_ENV !== 'test') {
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/config', express.static(path.join(__dirname, 'config')));
 
+// Helper function to detect news type from content
+function detectNewsType(item) {
+  const text = ((item.title || '') + ' ' + (item.content || '') + ' ' + (item.summary || '')).toLowerCase();
+  
+  // Financial results keywords
+  if (text.includes('financial results') || text.includes('earnings') || text.includes('revenue') || text.includes('profit') || text.includes('loss')) {
+    return 'Financial Results';
+  }
+  
+  // Corporate actions keywords
+  if (text.includes('dividend') || text.includes('share split') || text.includes('bonus issue') || text.includes('rights issue') || text.includes('capital increase')) {
+    return 'Corporate Actions';
+  }
+  
+  // Trading updates keywords
+  if (text.includes('trading update') || text.includes('business update') || text.includes('operating performance')) {
+    return 'Trading Updates';
+  }
+  
+  // Regulatory filings keywords
+  if (text.includes('annual report') || text.includes('interim report') || text.includes('quarterly report') || text.includes('form')) {
+    return 'Regulatory Filings';
+  }
+  
+  // General announcements
+  if (text.includes('announcement') || text.includes('notice') || text.includes('corporate information')) {
+    return 'General Announcements';
+  }
+  
+  return 'Other';
+}
+
 app.get('/api/news', async (req, res) => {
   try {
     const all = await readAllNews();
     const q = req.query.q;
     const preset = req.query.preset;
+    const dateStart = req.query.dateStart;
+    const dateEnd = req.query.dateEnd;
+    const newsTypes = req.query.newsTypes ? req.query.newsTypes.split(',') : [];
+    
     let list = all;
+    
+    // Apply preset filter
     if (preset) {
       const filtersPath = path.join(__dirname, 'config', 'filters.json');
       if (fs.existsSync(filtersPath)) {
@@ -47,6 +85,39 @@ app.get('/api/news', async (req, res) => {
         }
       }
     }
+    
+    // Apply date range filter
+    if (dateStart || dateEnd) {
+      list = list.filter(item => {
+        const dateStr = item.relTime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
+        if (!dateStr) return true;
+        
+        const itemDate = new Date(dateStr);
+        if (isNaN(itemDate.getTime())) return true;
+        
+        let include = true;
+        if (dateStart) {
+          const startDate = new Date(dateStart);
+          include = include && itemDate >= startDate;
+        }
+        if (dateEnd) {
+          const endDate = new Date(dateEnd);
+          include = include && itemDate <= endDate;
+        }
+        
+        return include;
+      });
+    }
+    
+    // Apply news type filter
+    if (newsTypes.length > 0) {
+      list = list.filter(item => {
+        const newsType = detectNewsType(item);
+        return newsTypes.includes(newsType);
+      });
+    }
+    
+    // Apply search query filter
     if (q) {
       const qq = q.toLowerCase();
       list = list.filter(item => {
@@ -54,7 +125,25 @@ app.get('/api/news', async (req, res) => {
         return text.includes(qq);
       });
     }
+    
     res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// API endpoint to get available news types
+app.get('/api/news/types', async (req, res) => {
+  try {
+    const all = await readAllNews();
+    const types = new Set();
+    
+    all.forEach(item => {
+      const type = detectNewsType(item);
+      types.add(type);
+    });
+    
+    res.json(Array.from(types).sort());
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

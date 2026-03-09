@@ -20,6 +20,44 @@
         </div>
           <div class="controls">
             <input id="search" placeholder="Search news..." />
+            <div class="date-filter-container">
+              <div class="date-filter-dropdown" id="dateFilterDropdown">
+                <div class="date-filter-selected" id="dateFilterSelected">
+                  All dates
+                </div>
+                <div class="date-filter-options" id="dateFilterOptions" style="display: none;">
+                  <div class="date-filter-presets">
+                    <button class="date-preset-btn" data-range="today">Today</button>
+                    <button class="date-preset-btn" data-range="this-week">This Week</button>
+                    <button class="date-preset-btn" data-range="this-month">This Month</button>
+                    <button class="date-preset-btn" data-range="custom">Custom Range</button>
+                  </div>
+                  <div class="date-range-inputs" id="dateRangeInputs" style="display: none;">
+                    <input type="date" id="dateStart" placeholder="Start date" />
+                    <span>to</span>
+                    <input type="date" id="dateEnd" placeholder="End date" />
+                    <button id="applyDateRange">Apply</button>
+                    <button id="clearDateRange">Clear</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="news-type-filter-container">
+              <div class="news-type-dropdown" id="newsTypeFilterDropdown">
+                <div class="news-type-selected" id="newsTypeFilterSelected">
+                  All types
+                </div>
+                <div class="news-type-options" id="newsTypeFilterOptions" style="display: none;">
+                  <div class="news-type-list" id="newsTypeList">
+                    <!-- News types will be populated here -->
+                  </div>
+                  <div class="news-type-actions">
+                    <button id="selectNewsTypes">Apply</button>
+                    <button id="clearNewsTypes">Clear</button>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="stock-filter-container">
               <div class="stock-filter-dropdown" id="stockFilterDropdown">
                 <div class="stock-filter-selected" id="stockFilterSelected">
