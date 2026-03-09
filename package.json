@@ -8,10 +8,11 @@
     "fetch": "node scripts/fetch.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "node-fetch": "^2.6.7",
     "cors": "^2.8.5",
-    "node-cron": "^3.0.2"
+    "express": "^4.18.2",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^2.6.7",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

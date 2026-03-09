@@ -126,11 +126,14 @@ The application uses the following environment variables (automatically set by R
 
 ### Data Persistence
 
-The application stores news data in `data/all-news.json`. For production deployment:
+The application now uses PostgreSQL for storing news data. For production deployment on Railway:
 
-- Railway provides persistent storage volumes
-- Data will persist across deployments
-- Initial fetch may take a few minutes to populate the database
+- In the Railway dashboard, add a PostgreSQL service to your project.
+- Railway will automatically set the `DATABASE_URL` environment variable.
+- Data will persist across deployments in the database.
+- Initial fetch may take a few minutes to populate the database.
+
+For local development, set up a local PostgreSQL database and set `DATABASE_URL` in your environment (e.g., `postgres://user:pass@localhost:5432/dbname`).
 
 ## API Endpoints
 
