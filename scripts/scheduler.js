@@ -1,6 +1,8 @@
 const cron = require('node-cron');
 const fetch = require('node-fetch');
 
+console.log('⏰ Scheduler module loaded');
+
 // Schedule automatic news fetching every 4 hours
 // This will run at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00
 cron.schedule('0 */4 * * *', async () => {

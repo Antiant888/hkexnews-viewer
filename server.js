@@ -15,9 +15,12 @@ let lastAutoFetchTime = null;
 // Start the news scheduler
 if (process.env.NODE_ENV !== 'test') {
   try {
+    console.log('🔧 Loading scheduler module...');
     require('./scripts/scheduler');
+    console.log('✅ Scheduler module loaded successfully');
   } catch (error) {
-    console.warn('⚠️  Scheduler not available:', error.message);
+    console.error('❌ Failed to load scheduler:', error.message);
+    console.error('Stack trace:', error.stack);
   }
 }
 
