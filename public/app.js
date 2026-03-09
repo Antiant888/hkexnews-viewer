@@ -473,49 +473,6 @@ async function init() {
   // Initialize stock filter dropdown
   initStockFilterDropdown(items);
   
-  // Populate stock filter dropdown
-  const stockFilterList = document.getElementById('stockFilterList');
-  const allOption = stockFilterList.querySelector('.stock-filter-option[data-code=""]');
-  stockFilterList.innerHTML = '';
-  stockFilterList.appendChild(allOption);
-  
-  // Extract and populate stock codes for dropdown
-  const stockMap = new Map();
-  items.forEach(item => {
-    let code = '';
-    let name = '';
-    if (Array.isArray(item.stock) && item.stock.length) {
-      code = item.stock[0].sc || item.stock[0].code || '';
-      name = item.stock[0].sn || item.stock[0].name || '';
-    }
-    code = code || pick([item.stockCode, item.stock_code, item.stockCd, item.code, item.ticker, item.shortCode]) || '';
-    name = name || pick([item.stockName, item.stock_name, item.company, item.issuer, item.companyName, item.issuerName]) || '';
-    
-    if (code) {
-      stockMap.set(code, name);
-    }
-  });
-
-  // Create options sorted by stock code
-  const sortedStocks = Array.from(stockMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  
-  sortedStocks.forEach(([code, name]) => {
-    const option = document.createElement('div');
-    option.className = 'stock-filter-option';
-    option.dataset.code = code;
-    option.innerHTML = `<span class="stock-code">${code}</span> - <span class="stock-name">${name}</span>`;
-    option.addEventListener('click', () => {
-      const selected = document.getElementById('stockFilterSelected');
-      selected.textContent = `${code} - ${name}`;
-      // Trigger update with new stock code
-      const q = document.getElementById('search').value;
-      const presets = Array.from(document.querySelectorAll('#presetsList button'));
-      const activePreset = presets.find(b => b.classList.contains('active'))?.textContent || '';
-      fetchNews(activePreset || null, q || null).then(list => renderNews(list, code));
-    });
-    stockFilterList.appendChild(option);
-  });
-
   // Populate traditional stock code filter (for backward compatibility)
   const stockCodeSelect = document.getElementById('stockCodeFilter');
   const stockCodes = extractStockCodes(items);
