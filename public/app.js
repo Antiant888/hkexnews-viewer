@@ -61,28 +61,67 @@ let currentFilters = {
   dateEnd: null,
   newsTypes: [],
   searchQuery: '',
-  stockCode: ''
+  stockCodes: []  // Array for multi-select
 };
 
-function renderNews(list, filterStockCode) {
+function renderNews(list) {
   const el = document.getElementById('newsList');
   const paginationEl = document.getElementById('pagination');
   
-  // Apply stock code filter
+  // Apply all filters
   let filtered = list;
-  if (filterStockCode) {
-    filtered = list.filter(item => {
+  
+  // Apply stock codes filter (multiple)
+  if (currentFilters.stockCodes && currentFilters.stockCodes.length > 0) {
+    filtered = filtered.filter(item => {
       let code = '';
       if (Array.isArray(item.stock) && item.stock.length) {
         code = item.stock[0].sc || item.stock[0].code || '';
       }
       code = code || item.stockCode || item.stock_code || item.code || '';
-      return String(code).trim() === filterStockCode;
+      return currentFilters.stockCodes.includes(String(code).trim());
     });
   }
   
+  // Apply date range filter
+  if (currentFilters.dateStart || currentFilters.dateEnd) {
+    filtered = filtered.filter(item => {
+      const dateStr = item.relTime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
+      if (!dateStr) return true;
+      
+      const itemDate = new Date(dateStr);
+      if (isNaN(itemDate.getTime())) return true;
+      
+      let include = true;
+      if (currentFilters.dateStart) {
+        include = include && itemDate >= currentFilters.dateStart;
+      }
+      if (currentFilters.dateEnd) {
+        include = include && itemDate <= currentFilters.dateEnd;
+      }
+      
+      return include;
+    });
+  }
+  
+  // Apply news type filter
+  if (currentFilters.newsTypes.length > 0) {
+    filtered = filtered.filter(item => {
+      const newsType = detectNewsType(item);
+      return currentFilters.newsTypes.includes(newsType);
+    });
+  }
+  
+  // Apply search query filter
+  if (currentFilters.searchQuery) {
+    const query = currentFilters.searchQuery.toLowerCase();
+    filtered = filtered.filter(item => {
+      const text = ((item.title || '') + ' ' + (item.content || '') + ' ' + (item.summary || '')).toLowerCase();
+      return text.includes(query);
+    });
+  }
+
   currentList = filtered;
-  currentFilterStockCode = filterStockCode;
   
   if (!filtered || !filtered.length) {
     el.innerHTML = '<p>No news found.</p>';
@@ -103,7 +142,7 @@ function renderNews(list, filterStockCode) {
   const endIndex = startIndex + itemsPerPage;
   const paginatedItems = filtered.slice(startIndex, endIndex);
 
-  // Render items
+  // Render items with highlighting
   el.innerHTML = paginatedItems
     .map(n => {
       let code = '';
@@ -120,15 +159,21 @@ function renderNews(list, filterStockCode) {
       const date = fmtDate(n);
       const clean = summary.replace(/\s+/g, ' ');
       const short = maxLen === 0 ? clean : truncate(clean, maxLen);
+      
+      // Apply highlighting if search query exists
+      const highlightedTitle = currentFilters.searchQuery ? highlightText(title, currentFilters.searchQuery) : title;
+      const highlightedSummary = currentFilters.searchQuery ? highlightText(short, currentFilters.searchQuery) : short;
+      const highlightedFull = currentFilters.searchQuery ? highlightText(clean, currentFilters.searchQuery) : clean;
+      
       return `
       <article class="item compact">
         <div class="item-header">
-          <h4 class="title"><a href="${url}" target="_blank">${title}</a></h4>
+          <h4 class="title"><a href="${url}" target="_blank">${highlightedTitle}</a></h4>
           <span class="release-date">${date}</span>
         </div>
         <div class="meta"><span class="code">${code}</span><span class="name">${name}</span></div>
-        <p class="summary">${short}</p>
-        <p class="full-content" style="display:none">${clean}</p>
+        <p class="summary">${highlightedSummary}</p>
+        <p class="full-content" style="display:none">${highlightedFull}</p>
         ${clean && clean !== short ? `<a class="toggle-full" href="#">Read more</a>` : ''}
       </article>`;
     })
@@ -216,7 +261,7 @@ function renderPageNumbers(currentPage, totalPages) {
 // Global function for pagination
 window.changePage = function(page) {
   currentPage = page;
-  renderNews(currentList, currentFilterStockCode);
+  renderNews(currentList);
 };
 
 // handle read more toggles via delegation
@@ -517,22 +562,22 @@ async function initNewsTypeFilterDropdown() {
 }
 
 // Enhanced renderNews function with all filters
-function renderNews(list, filterStockCode) {
+function renderNews(list) {
   const el = document.getElementById('newsList');
   const paginationEl = document.getElementById('pagination');
   
   // Apply all filters
   let filtered = list;
   
-  // Apply stock code filter
-  if (filterStockCode) {
+  // Apply stock codes filter (multiple)
+  if (currentFilters.stockCodes && currentFilters.stockCodes.length > 0) {
     filtered = filtered.filter(item => {
       let code = '';
       if (Array.isArray(item.stock) && item.stock.length) {
         code = item.stock[0].sc || item.stock[0].code || '';
       }
       code = code || item.stockCode || item.stock_code || item.code || '';
-      return String(code).trim() === filterStockCode;
+      return currentFilters.stockCodes.includes(String(code).trim());
     });
   }
   
@@ -575,7 +620,6 @@ function renderNews(list, filterStockCode) {
   }
 
   currentList = filtered;
-  currentFilterStockCode = filterStockCode;
   
   if (!filtered || !filtered.length) {
     el.innerHTML = '<p>No news found.</p>';
@@ -683,8 +727,11 @@ async function updateNewsWithFilters() {
   const activePreset = presets.find(b => b.classList.contains('active'))?.textContent || '';
   const q = document.getElementById('search').value;
   
+  // Update search query
+  currentFilters.searchQuery = q;
+  
   let list = await fetchNews(activePreset || null, q || null);
-  renderNews(list, currentFilterStockCode);
+  renderNews(list);
 }
 
 // Stock filter dropdown functionality
@@ -694,16 +741,14 @@ function initStockFilterDropdown(items) {
   const options = document.getElementById('stockFilterOptions');
   const searchInput = document.getElementById('stockFilterSearch');
   const list = document.getElementById('stockFilterList');
+  const selectBtn = document.getElementById('selectStocks');
+  const clearBtn = document.getElementById('clearStocks');
   
-  let allStockOptions = [];
-  let currentStockCode = '';
+  let allStockCheckboxes = [];
 
-  // Populate dropdown with stock codes
+  // Populate dropdown with stock checkboxes
   function populateStockFilter(items) {
-    // Clear existing options except "All stocks"
-    const allOption = list.querySelector('.stock-filter-option[data-code=""]');
-    list.innerHTML = '';
-    list.appendChild(allOption);
+    list.innerHTML = ''; // Clear existing
 
     // Extract unique stock codes and names
     const stockMap = new Map();
@@ -722,21 +767,22 @@ function initStockFilterDropdown(items) {
       }
     });
 
-    // Create options sorted by stock code
+    // Create checkboxes sorted by stock code
     const sortedStocks = Array.from(stockMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
     
     sortedStocks.forEach(([code, name]) => {
-      const option = document.createElement('div');
-      option.className = 'stock-filter-option';
-      option.dataset.code = code;
-      option.innerHTML = `<span class="stock-code">${code}</span> - <span class="stock-name">${name}</span>`;
-      option.addEventListener('click', () => {
-        selectStock(code, name || code);
-      });
-      list.appendChild(option);
+      const checkbox = document.createElement('div');
+      checkbox.className = 'stock-filter-checkbox';
+      checkbox.innerHTML = `
+        <input type="checkbox" id="stock-${code}" value="${code}">
+        <label for="stock-${code}">
+          <span class="stock-code">${code}</span> - <span class="stock-name">${name}</span>
+        </label>
+      `;
+      list.appendChild(checkbox);
     });
 
-    allStockOptions = Array.from(list.querySelectorAll('.stock-filter-option'));
+    allStockCheckboxes = Array.from(list.querySelectorAll('input[type="checkbox"]'));
   }
 
   // Toggle dropdown
@@ -766,37 +812,44 @@ function initStockFilterDropdown(items) {
 
   // Filter options based on search query
   function filterStockOptions(query) {
-    if (!query) {
-      allStockOptions.forEach(option => option.style.display = 'block');
-      return;
-    }
-
-    allStockOptions.forEach(option => {
-      const code = option.dataset.code || '';
-      const name = option.querySelector('.stock-name')?.textContent || '';
+    const checkboxes = list.querySelectorAll('.stock-filter-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+      const code = checkbox.querySelector('input').value;
+      const name = checkbox.querySelector('.stock-name')?.textContent || '';
       const text = `${code} ${name}`.toLowerCase();
       
-      if (text.includes(query)) {
-        option.style.display = 'block';
-      } else {
-        option.style.display = 'none';
-      }
+      checkbox.style.display = query ? (text.includes(query) ? 'flex' : 'none') : 'flex';
     });
   }
 
-  // Select a stock
-  function selectStock(code, name) {
-    currentStockCode = code;
-    selected.textContent = code ? `${code} - ${name}` : 'All stocks';
+  // Apply selected stocks
+  selectBtn.addEventListener('click', () => {
+    const selectedCodes = allStockCheckboxes
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+    
+    currentFilters.stockCodes = selectedCodes;
+    selected.textContent = selectedCodes.length > 0 
+      ? `${selectedCodes.length} stock${selectedCodes.length > 1 ? 's' : ''} selected`
+      : 'All stocks';
+    
     dropdown.classList.remove('open');
     options.style.display = 'none';
-    searchInput.value = '';
-    
-    // Trigger update
     updateNewsWithFilters();
-  }
+  });
 
-  // Initialize dropdown with items
+  // Clear selection
+  clearBtn.addEventListener('click', () => {
+    allStockCheckboxes.forEach(cb => cb.checked = false);
+    currentFilters.stockCodes = [];
+    selected.textContent = 'All stocks';
+    dropdown.classList.remove('open');
+    options.style.display = 'none';
+    updateNewsWithFilters();
+  });
+
+  // Initialize
   populateStockFilter(items);
 }
 

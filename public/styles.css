@@ -88,6 +88,17 @@ header {
   border: 1px solid var(--border-color);
 }
 
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
 header h1 {
   margin: 0;
   font-size: 1.5rem;
@@ -156,10 +167,18 @@ header h1 {
 
 .controls {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-end;
   align-items: center;
   width: 100%;
-  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 /* Date Filter Dropdown Styles */
@@ -522,16 +541,27 @@ header h1 {
 
 .stock-filter-option:hover {
   background: var(--bg-color);
+  box-shadow: inset 0 0 0 2px var(--accent-color);
 }
 
 .stock-filter-option.active {
   background: var(--accent-color);
   color: white;
   font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .stock-filter-option:last-child {
   border-bottom: none;
+}
+
+.stock-filter-option .stock-code {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.stock-filter-option .stock-name {
+  color: var(--text-secondary);
 }
 
 /* Hide scrollbar for Chrome/Safari/Edge */
