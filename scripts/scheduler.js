@@ -31,6 +31,7 @@ cron.schedule('0 */4 * * *', async () => {
           },
           body: JSON.stringify({ timestamp: new Date().toISOString() })
         });
+        console.log('✅ Last fetch time updated successfully');
       } catch (updateError) {
         console.warn('⚠️  Failed to update last fetch time:', updateError.message);
       }
@@ -62,6 +63,20 @@ cron.schedule('0 2 * * *', async () => {
       const result = await response.json();
       console.log('✅ Daily refresh completed successfully');
       console.log('📊 Daily refresh results:', JSON.stringify(result.results, null, 2));
+      
+      // Update last auto fetch time
+      try {
+        await fetch('http://localhost:3000/api/update-last-fetch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ timestamp: new Date().toISOString() })
+        });
+        console.log('✅ Last fetch time updated successfully');
+      } catch (updateError) {
+        console.warn('⚠️  Failed to update last fetch time:', updateError.message);
+      }
     } else {
       console.error('❌ Daily refresh failed with status:', response.status);
     }
@@ -73,10 +88,37 @@ cron.schedule('0 2 * * *', async () => {
   timezone: "Asia/Hong_Kong"
 });
 
+// Test endpoint to manually trigger last fetch time update
+cron.schedule('*/5 * * * *', async () => {
+  console.log('🧪 Testing last fetch time update at', new Date().toISOString());
+  
+  try {
+    const response = await fetch('http://localhost:3000/api/test-update-last-fetch', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    });
+    
+    if (response.ok) {
+      console.log('✅ Test update completed successfully');
+    } else {
+      console.error('❌ Test update failed with status:', response.status);
+    }
+  } catch (error) {
+    console.error('❌ Error during test update:', error.message);
+  }
+}, {
+  scheduled: true,
+  timezone: "Asia/Hong_Kong"
+});
+
 console.log('⏰ News scheduler started');
 console.log('📅 Schedule:');
 console.log('   - Every 4 hours: Regular news fetch');
 console.log('   - Daily at 2 AM: Full refresh');
+console.log('   - Every 5 minutes: Test last fetch time update');
 console.log('   - Timezone: Asia/Hong_Kong');
 
 // Keep the process alive
