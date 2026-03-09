@@ -235,6 +235,7 @@ header h1 {
 .stock-filter-search:focus {
   background: white;
   border-bottom-color: var(--accent-color);
+  color: var(--text-primary);
 }
 
 .stock-filter-list {

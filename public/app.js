@@ -349,7 +349,7 @@ updateDateTime();
 updateLastFetchTime();
 
 // Stock filter dropdown functionality
-function initStockFilterDropdown() {
+function initStockFilterDropdown(items) {
   const dropdown = document.getElementById('stockFilterDropdown');
   const selected = document.getElementById('stockFilterSelected');
   const options = document.getElementById('stockFilterOptions');
@@ -358,31 +358,6 @@ function initStockFilterDropdown() {
   
   let allStockOptions = [];
   let currentStockCode = '';
-
-  // Toggle dropdown
-  selected.addEventListener('click', (e) => {
-    e.stopPropagation();
-    dropdown.classList.toggle('open');
-    options.style.display = dropdown.classList.contains('open') ? 'block' : 'none';
-    if (dropdown.classList.contains('open')) {
-      searchInput.focus();
-      searchInput.select();
-    }
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!dropdown.contains(e.target)) {
-      dropdown.classList.remove('open');
-      options.style.display = 'none';
-    }
-  });
-
-  // Search functionality
-  searchInput.addEventListener('input', () => {
-    const query = searchInput.value.toLowerCase().trim();
-    filterStockOptions(query);
-  });
 
   // Populate dropdown with stock codes
   function populateStockFilter(items) {
@@ -425,6 +400,31 @@ function initStockFilterDropdown() {
     allStockOptions = Array.from(list.querySelectorAll('.stock-filter-option'));
   }
 
+  // Toggle dropdown
+  selected.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+    options.style.display = dropdown.classList.contains('open') ? 'block' : 'none';
+    if (dropdown.classList.contains('open')) {
+      searchInput.focus();
+      searchInput.select();
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+      options.style.display = 'none';
+    }
+  });
+
+  // Search functionality
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    filterStockOptions(query);
+  });
+
   // Filter options based on search query
   function filterStockOptions(query) {
     if (!query) {
@@ -460,8 +460,8 @@ function initStockFilterDropdown() {
     fetchNews(activePreset || null, q || null).then(list => renderNews(list, code));
   }
 
-  // Initialize with empty state
-  allStockOptions = Array.from(list.querySelectorAll('.stock-filter-option'));
+  // Initialize dropdown with items
+  populateStockFilter(items);
 }
 
 async function init() {
@@ -471,7 +471,7 @@ async function init() {
   const items = await fetchNews();
   
   // Initialize stock filter dropdown
-  initStockFilterDropdown();
+  initStockFilterDropdown(items);
   
   // Populate stock filter dropdown
   const stockFilterList = document.getElementById('stockFilterList');
