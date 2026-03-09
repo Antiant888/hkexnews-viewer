@@ -3,13 +3,29 @@ const fetch = require('node-fetch');
 
 console.log('⏰ Scheduler module loaded');
 
+// Function to get the correct base URL for different environments
+function getBaseUrl() {
+  // Check if running in Railway environment
+  if (process.env.RAILWAY_STATIC_URL) {
+    return `https://${process.env.RAILWAY_STATIC_URL}`;
+  }
+  // Check if running in Railway with different env var
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+    return `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+  }
+  // Default to localhost for local development
+  return 'http://localhost:3000';
+}
+
 // Schedule automatic news fetching every 4 hours
 // This will run at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00
 cron.schedule('0 */4 * * *', async () => {
+  const baseUrl = getBaseUrl();
   console.log('🔄 Starting scheduled news fetch at', new Date().toISOString());
+  console.log('📡 Using base URL:', baseUrl);
   
   try {
-    const response = await fetch('http://localhost:3000/api/fetch', {
+    const response = await fetch(`${baseUrl}/api/fetch`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +40,7 @@ cron.schedule('0 */4 * * *', async () => {
       
       // Update last auto fetch time
       try {
-        await fetch('http://localhost:3000/api/update-last-fetch', {
+        await fetch(`${baseUrl}/api/update-last-fetch`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -48,10 +64,12 @@ cron.schedule('0 */4 * * *', async () => {
 
 // Also schedule a daily full refresh at 1 PM Hong Kong time
 cron.schedule('0 13 * * *', async () => {
+  const baseUrl = getBaseUrl();
   console.log('🔄 Starting daily full refresh at', new Date().toISOString());
+  console.log('📡 Using base URL:', baseUrl);
   
   try {
-    const response = await fetch('http://localhost:3000/api/fetch', {
+    const response = await fetch(`${baseUrl}/api/fetch`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,7 +84,7 @@ cron.schedule('0 13 * * *', async () => {
       
       // Update last auto fetch time
       try {
-        await fetch('http://localhost:3000/api/update-last-fetch', {
+        await fetch(`${baseUrl}/api/update-last-fetch`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -90,10 +108,12 @@ cron.schedule('0 13 * * *', async () => {
 
 // Test endpoint to manually trigger last fetch time update
 cron.schedule('*/5 * * * *', async () => {
+  const baseUrl = getBaseUrl();
   console.log('🧪 Testing last fetch time update at', new Date().toISOString());
+  console.log('📡 Using base URL:', baseUrl);
   
   try {
-    const response = await fetch('http://localhost:3000/api/test-update-last-fetch', {
+    const response = await fetch(`${baseUrl}/api/test-update-last-fetch`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,6 +140,10 @@ console.log('   - Every 4 hours: Regular news fetch');
 console.log('   - Daily at 1 PM: Full refresh');
 console.log('   - Every 5 minutes: Test last fetch time update');
 console.log('   - Timezone: Asia/Hong_Kong');
+console.log('🌐 Environment detection:');
+console.log('   - Railway Static URL:', process.env.RAILWAY_STATIC_URL || 'Not set');
+console.log('   - Railway Public Domain:', process.env.RAILWAY_PUBLIC_DOMAIN || 'Not set');
+console.log('   - Default Base URL: http://localhost:3000');
 
 // Keep the process alive
 process.on('SIGINT', () => {
