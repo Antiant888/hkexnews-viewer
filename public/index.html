@@ -20,6 +20,21 @@
         </div>
           <div class="controls">
             <input id="search" placeholder="Search news..." />
+            <div class="stock-filter-container">
+              <div class="stock-filter-dropdown" id="stockFilterDropdown">
+                <div class="stock-filter-selected" id="stockFilterSelected">
+                  All stocks
+                </div>
+                <div class="stock-filter-options" id="stockFilterOptions" style="display: none;">
+                  <input type="text" class="stock-filter-search" id="stockFilterSearch" placeholder="Search stock code or company name..." />
+                  <div class="stock-filter-list" id="stockFilterList">
+                    <div class="stock-filter-option active" data-code="">
+                      All stocks
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <label for="summaryLength" class="sr">Summary</label>
             <select id="summaryLength" title="Summary length">
               <option value="short">Short (80)</option>

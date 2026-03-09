@@ -348,15 +348,177 @@ setInterval(updateLastFetchTime, 300000);
 updateDateTime();
 updateLastFetchTime();
 
+// Stock filter dropdown functionality
+function initStockFilterDropdown() {
+  const dropdown = document.getElementById('stockFilterDropdown');
+  const selected = document.getElementById('stockFilterSelected');
+  const options = document.getElementById('stockFilterOptions');
+  const searchInput = document.getElementById('stockFilterSearch');
+  const list = document.getElementById('stockFilterList');
+  
+  let allStockOptions = [];
+  let currentStockCode = '';
+
+  // Toggle dropdown
+  selected.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+    options.style.display = dropdown.classList.contains('open') ? 'block' : 'none';
+    if (dropdown.classList.contains('open')) {
+      searchInput.focus();
+      searchInput.select();
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+      options.style.display = 'none';
+    }
+  });
+
+  // Search functionality
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    filterStockOptions(query);
+  });
+
+  // Populate dropdown with stock codes
+  function populateStockFilter(items) {
+    // Clear existing options except "All stocks"
+    const allOption = list.querySelector('.stock-filter-option[data-code=""]');
+    list.innerHTML = '';
+    list.appendChild(allOption);
+
+    // Extract unique stock codes and names
+    const stockMap = new Map();
+    items.forEach(item => {
+      let code = '';
+      let name = '';
+      if (Array.isArray(item.stock) && item.stock.length) {
+        code = item.stock[0].sc || item.stock[0].code || '';
+        name = item.stock[0].sn || item.stock[0].name || '';
+      }
+      code = code || pick([item.stockCode, item.stock_code, item.stockCd, item.code, item.ticker, item.shortCode]) || '';
+      name = name || pick([item.stockName, item.stock_name, item.company, item.issuer, item.companyName, item.issuerName]) || '';
+      
+      if (code) {
+        stockMap.set(code, name);
+      }
+    });
+
+    // Create options sorted by stock code
+    const sortedStocks = Array.from(stockMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    
+    sortedStocks.forEach(([code, name]) => {
+      const option = document.createElement('div');
+      option.className = 'stock-filter-option';
+      option.dataset.code = code;
+      option.innerHTML = `<span class="stock-code">${code}</span> - <span class="stock-name">${name}</span>`;
+      option.addEventListener('click', () => {
+        selectStock(code, name || code);
+      });
+      list.appendChild(option);
+    });
+
+    allStockOptions = Array.from(list.querySelectorAll('.stock-filter-option'));
+  }
+
+  // Filter options based on search query
+  function filterStockOptions(query) {
+    if (!query) {
+      allStockOptions.forEach(option => option.style.display = 'block');
+      return;
+    }
+
+    allStockOptions.forEach(option => {
+      const code = option.dataset.code || '';
+      const name = option.querySelector('.stock-name')?.textContent || '';
+      const text = `${code} ${name}`.toLowerCase();
+      
+      if (text.includes(query)) {
+        option.style.display = 'block';
+      } else {
+        option.style.display = 'none';
+      }
+    });
+  }
+
+  // Select a stock
+  function selectStock(code, name) {
+    currentStockCode = code;
+    selected.textContent = code ? `${code} - ${name}` : 'All stocks';
+    dropdown.classList.remove('open');
+    options.style.display = 'none';
+    searchInput.value = '';
+    
+    // Trigger update
+    const q = document.getElementById('search').value;
+    const presets = Array.from(document.querySelectorAll('#presetsList button'));
+    const activePreset = presets.find(b => b.classList.contains('active'))?.textContent || '';
+    fetchNews(activePreset || null, q || null).then(list => renderNews(list, code));
+  }
+
+  // Initialize with empty state
+  allStockOptions = Array.from(list.querySelectorAll('.stock-filter-option'));
+}
+
 async function init() {
   // Initialize theme switching first
   initThemeSwitcher();
   
   const items = await fetchNews();
   
-  // Populate stock code filter
-  const stockCodes = extractStockCodes(items);
+  // Initialize stock filter dropdown
+  initStockFilterDropdown();
+  
+  // Populate stock filter dropdown
+  const stockFilterList = document.getElementById('stockFilterList');
+  const allOption = stockFilterList.querySelector('.stock-filter-option[data-code=""]');
+  stockFilterList.innerHTML = '';
+  stockFilterList.appendChild(allOption);
+  
+  // Extract and populate stock codes for dropdown
+  const stockMap = new Map();
+  items.forEach(item => {
+    let code = '';
+    let name = '';
+    if (Array.isArray(item.stock) && item.stock.length) {
+      code = item.stock[0].sc || item.stock[0].code || '';
+      name = item.stock[0].sn || item.stock[0].name || '';
+    }
+    code = code || pick([item.stockCode, item.stock_code, item.stockCd, item.code, item.ticker, item.shortCode]) || '';
+    name = name || pick([item.stockName, item.stock_name, item.company, item.issuer, item.companyName, item.issuerName]) || '';
+    
+    if (code) {
+      stockMap.set(code, name);
+    }
+  });
+
+  // Create options sorted by stock code
+  const sortedStocks = Array.from(stockMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  
+  sortedStocks.forEach(([code, name]) => {
+    const option = document.createElement('div');
+    option.className = 'stock-filter-option';
+    option.dataset.code = code;
+    option.innerHTML = `<span class="stock-code">${code}</span> - <span class="stock-name">${name}</span>`;
+    option.addEventListener('click', () => {
+      const selected = document.getElementById('stockFilterSelected');
+      selected.textContent = `${code} - ${name}`;
+      // Trigger update with new stock code
+      const q = document.getElementById('search').value;
+      const presets = Array.from(document.querySelectorAll('#presetsList button'));
+      const activePreset = presets.find(b => b.classList.contains('active'))?.textContent || '';
+      fetchNews(activePreset || null, q || null).then(list => renderNews(list, code));
+    });
+    stockFilterList.appendChild(option);
+  });
+
+  // Populate traditional stock code filter (for backward compatibility)
   const stockCodeSelect = document.getElementById('stockCodeFilter');
+  const stockCodes = extractStockCodes(items);
   stockCodes.forEach(code => {
     const opt = document.createElement('option');
     opt.value = code;
