@@ -17,9 +17,9 @@ function getBaseUrl() {
   return 'http://localhost:3000';
 }
 
-// Schedule automatic news fetching every 4 hours
-// This will run at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00
-cron.schedule('0 */4 * * *', async () => {
+// Schedule automatic news fetching every hour from 4 PM to 10 AM (overnight and early morning)
+// 4 PM to 11 PM: every hour
+cron.schedule('0 16-23 * * *', async () => {
   const baseUrl = getBaseUrl();
   console.log('🔄 Starting scheduled news fetch at', new Date().toISOString());
   console.log('📡 Using base URL:', baseUrl);
@@ -62,10 +62,10 @@ cron.schedule('0 */4 * * *', async () => {
   timezone: "Asia/Hong_Kong"
 });
 
-// Also schedule a daily full refresh at 1 PM Hong Kong time
-cron.schedule('0 13 * * *', async () => {
+// 12 AM to 10 AM: every hour
+cron.schedule('0 0-10 * * *', async () => {
   const baseUrl = getBaseUrl();
-  console.log('🔄 Starting daily full refresh at', new Date().toISOString());
+  console.log('🔄 Starting scheduled news fetch at', new Date().toISOString());
   console.log('📡 Using base URL:', baseUrl);
   
   try {
@@ -79,8 +79,8 @@ cron.schedule('0 13 * * *', async () => {
     
     if (response.ok) {
       const result = await response.json();
-      console.log('✅ Daily refresh completed successfully');
-      console.log('📊 Daily refresh results:', JSON.stringify(result.results, null, 2));
+      console.log('✅ Scheduled fetch completed successfully');
+      console.log('📊 Fetch results:', JSON.stringify(result.results, null, 2));
       
       // Update last auto fetch time
       try {
@@ -96,10 +96,98 @@ cron.schedule('0 13 * * *', async () => {
         console.warn('⚠️  Failed to update last fetch time:', updateError.message);
       }
     } else {
-      console.error('❌ Daily refresh failed with status:', response.status);
+      console.error('❌ Scheduled fetch failed with status:', response.status);
     }
   } catch (error) {
-    console.error('❌ Error during daily refresh:', error.message);
+    console.error('❌ Error during scheduled fetch:', error.message);
+  }
+}, {
+  scheduled: true,
+  timezone: "Asia/Hong_Kong"
+});
+
+// Exception: Fetch at 12:30 PM
+cron.schedule('30 12 * * *', async () => {
+  const baseUrl = getBaseUrl();
+  console.log('🔄 Starting scheduled news fetch at', new Date().toISOString());
+  console.log('📡 Using base URL:', baseUrl);
+  
+  try {
+    const response = await fetch(`${baseUrl}/api/fetch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Scheduled fetch completed successfully');
+      console.log('📊 Fetch results:', JSON.stringify(result.results, null, 2));
+      
+      // Update last auto fetch time
+      try {
+        await fetch(`${baseUrl}/api/update-last-fetch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ timestamp: new Date().toISOString() })
+        });
+        console.log('✅ Last fetch time updated successfully');
+      } catch (updateError) {
+        console.warn('⚠️  Failed to update last fetch time:', updateError.message);
+      }
+    } else {
+      console.error('❌ Scheduled fetch failed with status:', response.status);
+    }
+  } catch (error) {
+    console.error('❌ Error during scheduled fetch:', error.message);
+  }
+}, {
+  scheduled: true,
+  timezone: "Asia/Hong_Kong"
+});
+
+// Exception: Fetch at 1:00 PM (replaces daily full refresh)
+cron.schedule('0 13 * * *', async () => {
+  const baseUrl = getBaseUrl();
+  console.log('🔄 Starting scheduled news fetch at', new Date().toISOString());
+  console.log('📡 Using base URL:', baseUrl);
+  
+  try {
+    const response = await fetch(`${baseUrl}/api/fetch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Scheduled fetch completed successfully');
+      console.log('📊 Fetch results:', JSON.stringify(result.results, null, 2));
+      
+      // Update last auto fetch time
+      try {
+        await fetch(`${baseUrl}/api/update-last-fetch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ timestamp: new Date().toISOString() })
+        });
+        console.log('✅ Last fetch time updated successfully');
+      } catch (updateError) {
+        console.warn('⚠️  Failed to update last fetch time:', updateError.message);
+      }
+    } else {
+      console.error('❌ Scheduled fetch failed with status:', response.status);
+    }
+  } catch (error) {
+    console.error('❌ Error during scheduled fetch:', error.message);
   }
 }, {
   scheduled: true,
@@ -135,9 +223,11 @@ cron.schedule('*/5 * * * *', async () => {
 });
 
 console.log('⏰ News scheduler started');
-console.log('📅 Schedule:');
-console.log('   - Every 4 hours: Regular news fetch');
-console.log('   - Daily at 1 PM: Full refresh');
+console.log('📅 New Schedule:');
+console.log('   - 4 PM to 11 PM: Every hour (16:00, 17:00, 18:00, 19:00, 20:00, 21:00, 22:00, 23:00)');
+console.log('   - 12 AM to 10 AM: Every hour (00:00, 01:00, 02:00, 03:00, 04:00, 05:00, 06:00, 07:00, 08:00, 09:00, 10:00)');
+console.log('   - 12:30 PM: Exception fetch');
+console.log('   - 1:00 PM: Exception fetch (replaces daily full refresh)');
 console.log('   - Every 5 minutes: Test last fetch time update');
 console.log('   - Timezone: Asia/Hong_Kong');
 console.log('🌐 Environment detection:');
