@@ -10,5 +10,9 @@
   {
     "name": "上市文件",
     "keywords": ["上市文件", "listing document", "prospectus", "招股说明书", "上市申请", "listing application", "IPO", "initial public offering"]
+  },
+  {
+    "name": "港股通",
+    "keywords": ["港股通", "Hong Kong Stock Connect", "stock connect", "沪港通", "深港通", "northbound", "southbound", "connect", "connectivity"]
   }
 ]
