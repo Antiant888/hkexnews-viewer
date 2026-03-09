@@ -201,7 +201,8 @@ app.get('/api/last-fetch-time', (req, res) => {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false
+        hour12: false,
+        timeZone: 'Asia/Hong_Kong'
       }) : null
     });
   } catch (error) {
