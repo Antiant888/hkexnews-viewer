@@ -136,4 +136,16 @@ app.post('/api/update-last-fetch', (req, res) => {
   }
 });
 
+// Test endpoint to manually trigger last fetch time update
+app.post('/api/test-update-last-fetch', (req, res) => {
+  try {
+    lastAutoFetchTime = new Date();
+    console.log('🧪 Test: Last auto fetch time manually updated:', lastAutoFetchTime.toLocaleString('en-HK'));
+    res.json({ success: true, lastAutoFetchTime: lastAutoFetchTime });
+  } catch (error) {
+    console.error('Error in test update:', error);
+    res.status(500).json({ error: 'Failed to update last fetch time' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Server listening http://localhost:${PORT}`));
