@@ -38,9 +38,8 @@ function getDateForSort(item) {
     const [day, month, year] = datePart.split('/').map(Number);
     const [hour, minute] = timePart.split(':').map(Number);
     
-    // Assume relTime is already in HKT (most common for HK users)
-    return new Date(Date.UTC(year, month - 1, day, hour, minute)).getTime() - (8 * 3600000);
-    //                       ↑ parse as UTC    ↓ shift back to get HKT timestamp
+    // Parse as UTC with Z
+    return new Date(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00Z`).getTime();
   }
 
   // fallback remains the same
