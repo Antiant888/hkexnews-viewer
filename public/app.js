@@ -35,7 +35,10 @@ function fmtDate(item) {
   if (!cand) return '';
   const d = new Date(cand);
   if (isNaN(d.getTime())) return String(cand);
-  return d.toLocaleString();
+  // Assume DB times are in UTC, convert to local timezone
+  const offset = d.getTimezoneOffset() * 60000; // minutes to milliseconds
+  const localTime = new Date(d.getTime() - offset);
+  return localTime.toLocaleString('en-HK', { timeZone: 'Asia/Hong_Kong' });
 }
 
 function pick(vs) {
