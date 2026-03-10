@@ -31,7 +31,8 @@ function extractStockCodes(items) {
 }
 
 function fmtDate(item) {
-  const cand = item.relTime || item.pubtime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
+  if (item.relTime) return item.relTime;
+  const cand = item.pubtime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
   if (!cand) return '';
   const d = new Date(cand);
   if (isNaN(d.getTime())) return String(cand);
@@ -66,6 +67,13 @@ let currentFilters = {
 function renderNews(list) {
   const el = document.getElementById('newsList');
   const paginationEl = document.getElementById('pagination');
+  
+  // Sort by date descending (latest first)
+  list.sort((a, b) => {
+    const dateA = new Date(fmtDate(a));
+    const dateB = new Date(fmtDate(b));
+    return dateB - dateA;
+  });
   
   // Apply search query filter
   let filtered = list;
