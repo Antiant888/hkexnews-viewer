@@ -30,6 +30,19 @@ function extractStockCodes(items) {
   return Array.from(codes).sort();
 }
 
+function getDateForSort(item) {
+  if (item.relTime) {
+    const [datePart, timePart] = item.relTime.split(' ');
+    const [day, month, year] = datePart.split('/').map(Number);
+    const [hour, minute] = timePart.split(':').map(Number);
+    return new Date(year, month - 1, day, hour, minute).getTime();
+  }
+  const cand = item.pubtime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
+  if (!cand) return 0;
+  const d = new Date(cand);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+
 function fmtDate(item) {
   if (item.relTime) return item.relTime;
   const cand = item.pubtime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
@@ -70,9 +83,7 @@ function renderNews(list) {
   
   // Sort by date descending (latest first)
   list.sort((a, b) => {
-    const dateA = new Date(fmtDate(a));
-    const dateB = new Date(fmtDate(b));
-    return dateB - dateA;
+    return getDateForSort(b) - getDateForSort(a);
   });
   
   // Apply search query filter
