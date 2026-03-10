@@ -24,14 +24,14 @@ function extractStockCodes(items) {
     if (Array.isArray(item.stock) && item.stock.length) {
       code = item.stock[0].sc || item.stock[0].code || '';
     }
-    code = code || item.stockCode || item.stock_code || item.code || '';
+    code = code || item.stockCode || item.stockcode || item.stock_code || item.code || '';
     if (code) codes.add(String(code).trim());
   });
   return Array.from(codes).sort();
 }
 
 function fmtDate(item) {
-  const cand = item.relTime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
+  const cand = item.relTime || item.pubtime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
   if (!cand) return '';
   const d = new Date(cand);
   if (isNaN(d.getTime())) return String(cand);
@@ -104,8 +104,8 @@ function renderNews(list) {
         code = n.stock[0].sc || n.stock[0].code || n.stock[0].ticker || '';
         name = n.stock[0].sn || n.stock[0].name || '';
       }
-      code = code || pick([n.stockCode, n.stock_code, n.stockCd, n.code, n.ticker, n.shortCode]) || '';
-      name = name || pick([n.stockName, n.stock_name, n.company, n.issuer, n.companyName, n.issuerName]) || '';
+      code = code || pick([n.stockCode, n.stockcode, n.stock_code, n.stockCd, n.code, n.ticker, n.shortCode]) || '';
+      name = name || pick([n.stockName, n.stockname, n.stock_name, n.company, n.issuer, n.companyName, n.issuerName]) || '';
       const title = pick([n.title, n.headline, n.subject]) || 'No title';
       const summary = pick([n.summary, n.content, n.description, n.abstract, n.note]) || '';
       const url = pick([n.url, n.link, n.linkUrl]) || '#';
