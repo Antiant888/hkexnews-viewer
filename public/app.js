@@ -50,7 +50,13 @@ function getDateForSort(item) {
 }
 
 function fmtDate(item) {
-  if (item.relTime) return item.relTime;
+  console.log('fmtDate called with item:', item);
+  console.log('relTime value:', item.relTime);
+  if (item.relTime) {
+    console.log('Returning direct relTime:', item.relTime);
+    return item.relTime;
+  }
+  console.log('No relTime, falling back');
   const cand = item.pubtime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
   if (!cand) return '';
   const d = new Date(cand);

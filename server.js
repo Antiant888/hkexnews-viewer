@@ -7,6 +7,12 @@ const app = express();
 app.use(express.json());
 app.use(require('cors')());
 
+// Temporarily allow 'unsafe-eval' for debugging
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';");
+  next();
+});
+
 const PORT = process.env.PORT || 3000;
 
 // Track last auto fetch time
