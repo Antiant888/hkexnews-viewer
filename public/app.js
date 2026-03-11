@@ -50,21 +50,18 @@ function getDateForSort(item) {
 }
 
 function fmtDate(item) {
-  console.log('fmtDate called with item:', item);
-  console.log('relTime value:', item.relTime);
-  if (item.relTime) {
-    console.log('Returning direct relTime:', item.relTime);
-    return item.relTime;
+  if (item.pubTime) {
+    const d = new Date(item.pubTime);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleString('en-HK', { timeZone: 'Asia/Hong_Kong' });
+    }
   }
-  console.log('No relTime, falling back');
-  const cand = item.pubtime || item.pubTime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
+  // Fallback if pubTime not available
+  const cand = item.relTime || item.pubtime || item.publishTime || item.publish_date || item.date || item.time || item.timestamp || item.postTime;
   if (!cand) return '';
-  const d = new Date(cand);
-  if (isNaN(d.getTime())) return String(cand);
-  // Assume DB times are in UTC, convert to local timezone
-  const offset = d.getTimezoneOffset() * 60000; // minutes to milliseconds
-  const localTime = new Date(d.getTime() - offset);
-  return localTime.toLocaleString('en-HK', { timeZone: 'Asia/Hong_Kong' });
+  const dFallback = new Date(cand);
+  if (isNaN(dFallback.getTime())) return String(cand);
+  return dFallback.toLocaleString('en-HK', { timeZone: 'Asia/Hong_Kong' });
 }
 
 function pick(vs) {
