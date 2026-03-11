@@ -165,6 +165,7 @@ function renderNews(list) {
 
   // Render pagination
   renderPagination(totalPages, paginationEl);
+  addPaginationListeners(totalPages);
 }
 
 function renderPagination(totalPages, paginationEl) {
@@ -184,13 +185,13 @@ function renderPagination(totalPages, paginationEl) {
           Showing ${startItem}-${endItem} of ${currentList.length} items
         </div>
         <div class="pagination-controls">
-          <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="changePage(${Math.max(1, currentPage - 1)})" ${currentPage === 1 ? 'disabled' : ''}>
+          <button id="prevPage" class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" ${currentPage === 1 ? 'disabled' : ''}>
             ← Previous
           </button>
           
           ${renderPageNumbers(currentPage, totalPages)}
           
-          <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="changePage(${Math.min(totalPages, currentPage + 1)})" ${currentPage === totalPages ? 'disabled' : ''}>
+          <button id="nextPage" class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" ${currentPage === totalPages ? 'disabled' : ''}>
             Next →
           </button>
         </div>
@@ -207,11 +208,11 @@ function renderPageNumbers(currentPage, totalPages) {
   // Always show first page
   if (totalPages <= 7) {
     for (let i = 1; i <= totalPages; i++) {
-      pageNumbers += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+      pageNumbers += `<button class="pagination-btn page-number-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
     }
   } else {
     // Show first page
-    pageNumbers += `<button class="pagination-btn ${1 === currentPage ? 'active' : ''}" onclick="changePage(1)">1</button>`;
+    pageNumbers += `<button class="pagination-btn page-number-btn ${1 === currentPage ? 'active' : ''}" data-page="1">1</button>`;
     
     // Show ellipsis if needed
     if (currentPage > 4) {
@@ -224,7 +225,7 @@ function renderPageNumbers(currentPage, totalPages) {
     
     for (let i = start; i <= end; i++) {
       if (i > 1 && i < totalPages) {
-        pageNumbers += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+        pageNumbers += `<button class="pagination-btn page-number-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
       }
     }
     
@@ -235,11 +236,37 @@ function renderPageNumbers(currentPage, totalPages) {
     
     // Show last page
     if (totalPages > 1) {
-      pageNumbers += `<button class="pagination-btn ${totalPages === currentPage ? 'active' : ''}" onclick="changePage(${totalPages})">${totalPages}</button>`;
+      pageNumbers += `<button class="pagination-btn page-number-btn ${totalPages === currentPage ? 'active' : ''}" data-page="${totalPages}">${totalPages}</button>`;
     }
   }
   
   return pageNumbers;
+}
+
+// Add event listeners after rendering
+function addPaginationListeners(totalPages) {
+  const prevBtn = document.getElementById('prevPage');
+  const nextBtn = document.getElementById('nextPage');
+  
+  if (prevBtn) {
+    prevBtn.onclick = () => {
+      if (currentPage > 1) changePage(currentPage - 1);
+    };
+  }
+  
+  if (nextBtn) {
+    nextBtn.onclick = () => {
+      if (currentPage < totalPages) changePage(currentPage + 1);
+    };
+  }
+  
+  // Add listeners to page number buttons
+  document.querySelectorAll('.page-number-btn').forEach(btn => {
+    btn.onclick = () => {
+      const page = parseInt(btn.dataset.page);
+      if (!isNaN(page)) changePage(page);
+    };
+  });
 }
 
 // Global function for pagination
@@ -439,12 +466,12 @@ async function init() {
   presets.forEach(p => {
     const b = document.createElement('button');
     b.textContent = p.name;
-    b.onclick = async () => {
+    b.addEventListener('click', async () => {
       document.getElementById('search').value = '';
       document.getElementById('stockCodeFilter').value = '';
       const items = await fetchNews(p.name);
       renderNews(items);
-    };
+    });
     presetsList.appendChild(b);
   });
 
