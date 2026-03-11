@@ -9,7 +9,7 @@ app.use(require('cors')());
 
 // Temporarily allow 'unsafe-eval' for debugging
 app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:;");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:;");
   next();
 });
 
